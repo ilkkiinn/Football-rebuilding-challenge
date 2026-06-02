@@ -1604,6 +1604,130 @@
     60% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotateY(0deg); }
     100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotateY(0deg); }
   }
+
+  /* ============================================================
+     MOBILE / iPHONE — complete layout rework (<= 640px)
+     The absolute-positioned pitch doesn't fit a narrow screen, so
+     below this breakpoint we lay the XI out as a real vertical
+     formation (rows by line) with comfortably tappable cards.
+     ============================================================ */
+  @media (max-width: 640px) {
+    /* --- overall game layout stacks --- */
+    .game-wrap { grid-template-columns: 1fr; gap: 18px; }
+    .pitch-frame { padding: 0; border: none; background: none; box-shadow: none; }
+
+    .pitch-header {
+      flex-direction: row; flex-wrap: wrap; align-items: center;
+      gap: 8px 10px; padding: 4px 2px 12px;
+    }
+    .pitch-header .left { gap: 8px; align-items: center; }
+    .pitch-header .team-name { font-size: 26px; }
+    .pitch-header .formation { font-size: 10px; width: 100%; order: 3; }
+    .pitch-header .game-team-logo { width: 30px; height: 30px; }
+    .pitch-header .round-chip { margin-left: auto; font-size: 12px; padding: 6px 12px; }
+
+    /* --- the pitch becomes a flex column of formation rows --- */
+    .pitch {
+      aspect-ratio: auto;
+      min-height: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: flex-start;
+      gap: 14px 3%;
+      padding: 22px 10px;
+      border-radius: 18px;
+    }
+    /* hide decorative pitch markings + faded position labels on mobile;
+       they only make sense in the absolute pitch view */
+    .pitch .box, .pitch .corner-arc, .pitch::before, .pitch::after { display: none; }
+    .pitch .pos-label { display: none !important; }
+
+    /* cards: no absolute positioning, lay them out in the flow */
+    .pitch .pcard {
+      position: relative !important;
+      left: auto !important; top: auto !important;
+      transform: none !important;
+      width: 30%;
+      min-width: 0;
+      margin: 0;
+    }
+    .pitch .pcard:hover { transform: none !important; }
+    .pitch .pcard.tappable:active .pcard-inner { transform: scale(0.96); }
+
+    /* Group the 11 cards into formation rows using flex line breaks.
+       Squad order is: 0 ST,1 LW,2 RW,3 CAM,4 CM,5 CM,6 LB,7 CB,8 CB,9 RB,10 GK.
+       We reorder with `order` so each line sits together and wraps. */
+    .pitch .pcard:nth-of-type(1)  { order: 2; }  /* ST */
+    .pitch .pcard:nth-of-type(2)  { order: 1; }  /* LW */
+    .pitch .pcard:nth-of-type(3)  { order: 3; }  /* RW */
+    .pitch .pcard:nth-of-type(4)  { order: 4; }  /* CAM */
+    .pitch .pcard:nth-of-type(5)  { order: 5; }  /* CM */
+    .pitch .pcard:nth-of-type(6)  { order: 6; }  /* CM */
+    .pitch .pcard:nth-of-type(7)  { order: 7; }  /* LB */
+    .pitch .pcard:nth-of-type(8)  { order: 8; }  /* CB */
+    .pitch .pcard:nth-of-type(9)  { order: 9; }  /* CB */
+    .pitch .pcard:nth-of-type(10) { order: 10; } /* RB */
+    .pitch .pcard:nth-of-type(11) { order: 11; } /* GK */
+    /* Force row breaks after each line so the formation reads top-down:
+       LW ST RW | CAM | CM CM | LB CB CB RB | GK.
+       Flexbox wraps naturally at 30% width (3 per row); to keep lines
+       clean we widen the single-card lines. */
+    .pitch .pcard:nth-of-type(4)  { width: 34%; }   /* CAM alone-ish */
+    .pitch .pcard:nth-of-type(11) { width: 34%; }   /* GK centered */
+
+    /* keep the tap hint legible and always visible on touch */
+    .pcard .tap-hint {
+      opacity: 1; bottom: -7px; font-size: 8px; padding: 2px 7px;
+    }
+    .pcard.played .check { width: 26px; height: 26px; font-size: 14px; }
+
+    /* --- sidebar below pitch, full width --- */
+    .sidebar { gap: 14px; }
+    .sidebar .panel { padding: 16px; }
+
+    /* --- DEALER modal: comfortable on phones --- */
+    .dealer-overlay { padding: 0; align-items: stretch; }
+    .dealer-panel {
+      max-width: 100%; border-radius: 0; min-height: 100%;
+      display: flex; flex-direction: column;
+    }
+    .dealer-head { padding: 16px 18px; }
+    .dealer-head .title { font-size: 12px; letter-spacing: 0.2em; }
+    .dealer-head .pos-chip { font-size: 18px; padding: 3px 12px; }
+    .dealer-body { padding: 22px 20px 26px; }
+    .dealer-body .question { font-size: 30px; margin-bottom: 18px; }
+    .deal-numbers { grid-template-columns: 1fr; }
+    .deal-numbers .col:first-child { border-right: none; border-bottom: 1px solid var(--line); }
+    .dealer-actions { grid-template-columns: 1fr; gap: 10px; }
+
+    /* --- REPLACEMENT modal: single column, scrollable, bench reachable --- */
+    .replace-overlay { padding: 20px 14px 60px; }
+    .replace-header { margin-bottom: 18px; }
+    .replace-header h2 { font-size: 34px; }
+    .replace-header .budget-chip { font-size: 22px; padding: 8px 16px; }
+    .replace-grid { grid-template-columns: 1fr; gap: 14px; }
+    /* the player card inside each target — give it real size, side-by-side with info */
+    .target { display: flex; flex-direction: column; }
+    .target .target-card-wrap { max-width: 180px; margin: 0 auto; }
+
+    /* --- hero / select screen --- */
+    .select-hero { grid-template-columns: 1fr; gap: 16px; }
+    .select-hero h1 { font-size: 40px; }
+    .hero-right { display: none; }
+    .club-grid { grid-template-columns: 1fr; }
+    .difficulty-pills { grid-template-columns: 1fr; }
+
+    /* --- end screen --- */
+    .end-stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Extra-small phones (<= 380px): 3 cards per row still, tighter gaps */
+  @media (max-width: 380px) {
+    .pitch { gap: 10px 2%; padding: 16px 6px; }
+    .pitch .pcard { width: 31%; }
+    .pitch .pcard:nth-of-type(4), .pitch .pcard:nth-of-type(11) { width: 38%; }
+  }
 </style>
 </head>
 <body>
